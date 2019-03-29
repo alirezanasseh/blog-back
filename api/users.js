@@ -8,6 +8,6 @@ const jsonParser = bodyParser.json();
 let user = new model(userModel);
 
 router.route('/').get(user.getMany).post(jsonParser, user.post);
-router.route('/:id').get(user.getOne).put(user.put).delete(user.delete);
+router.route('/:id').get(user.getOneWithId).put(user.put).delete(user.delete);
 
 module.exports = router;

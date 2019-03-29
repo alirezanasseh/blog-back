@@ -1,6 +1,7 @@
 module.exports = {
     entity: "users",
     fields: {
+        _id: {},
         name: {
             max_length: 100
         },
@@ -8,9 +9,13 @@ module.exports = {
             required: true,
             max_length: 100
         },
+        code: {
+            required: true,
+        },
         mobile: {
             required: true,
-            length: 11
+            length: 10,
+            exceptions: ['admin']
         },
         password: {
             required: true,

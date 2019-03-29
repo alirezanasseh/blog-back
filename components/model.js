@@ -2,39 +2,43 @@ const db = require('./db');
 const {ObjectId} = require('mongodb');
 
 module.exports = class Model {
-    entity = this.props.entity;
-    roles = this.props.roles;
+    constructor(props){
+        this.entity = props.entity;
+        this.fields = props.fields;
+    }
 
-    validateFields = (fields, next) => {
+    validateFields(fields, method, next){
         let new_fields = {};
         let error_note = '';
-        for(let role of Object.entries(this.roles)){
-            if(fields[role[0]]){
-                let max_length = role[1].max_length;
-                let min_length = role[1].min_length;
-                let length = role[1].length;
-                if(min_length){
-                    if(fields[role[0]].length < min_length){
-                        error_note = "طول فیلد " + role[0] + " حداقل " + min_length + " می تواند باشد.";
-                        break;
+        for(let field of Object.entries(this.fields)){
+            if(fields[field[0]]){
+                if(!field[1].exceptions || field[1].exceptions.indexOf(fields[field[0]]) < 0){
+                    let max_length = field[1].max_length;
+                    let min_length = field[1].min_length;
+                    let length = field[1].length;
+                    if(min_length){
+                        if(fields[field[0]].length < min_length){
+                            error_note = "طول فیلد " + field[0] + " حداقل " + min_length + " می تواند باشد.";
+                            break;
+                        }
                     }
-                }
-                if(max_length){
-                    if(fields[role[0]].length > max_length){
-                        error_note = "طول فیلد " + role[0] + " حداکثر " + max_length + " می تواند باشد.";
-                        break;
+                    if(max_length){
+                        if(fields[field[0]].length > max_length){
+                            error_note = "طول فیلد " + field[0] + " حداکثر " + max_length + " می تواند باشد.";
+                            break;
+                        }
                     }
-                }
-                if(length){
-                    if(fields[role[0]].length !== length){
-                        error_note = "طول فیلد " + role[0] + " باید " + length + " باشد.";
-                        break;
+                    if(length){
+                        if(fields[field[0]].length !== length){
+                            error_note = "طول فیلد " + field[0] + " باید " + length + " باشد.";
+                            break;
+                        }
                     }
+                    new_fields[field[0]] = fields[field[0]];
                 }
-                new_fields[role[0]] = fields[role[0]];
-            }else{
-                if(role[1].required){
-                    error_note = "فیلد " + role[0] + " الزامی است.";
+            }else if(method !== 'get'){
+                if(field[1].required){
+                    error_note = "فیلد " + field[0] + " الزامی است.";
                     break;
                 }
             }
@@ -47,26 +51,67 @@ module.exports = class Model {
         }else{
             next(null, new_fields);
         }
-    };
+    }
 
-    getMany = (req, res, next) => {
+    getOneWithId(req, res, next){
         let mydb = new db();
-        mydb.getMany({
+        mydb.getOne({
             collection: this.entity,
-            query: req.params.query
+            query: {_id: ObjectId(req.body.id)}
         }, (err, result) => {
             if(err){
-                next(err);
+                next({status: false, note: err});
             }else{
-                res.status(200).send(result)
+                res.status(200).send(result);
             }
         });
-    };
+    }
 
-    post = (req, res, next) => {
-        this.validateFields(req.body, (err, fields) => {
+    getOneWithCondition(req, res, next){
+        this.validateFields(req.body, 'get', (err, fields) => {
             if(err){
-                res.status(400).send(err);
+                next({status: false, note: err});
+            }else{
+                let mydb = new db();
+                mydb.getOne({
+                    collection: this.entity,
+                    query: fields
+                }, (err, result) => {
+                    if(err){
+                        next({status: false, note: err});
+                    }else{
+                        next({status: true, data: result});
+                    }
+                });
+            }
+        })
+    }
+
+    getMany(req, res, next){
+        this.validateFields(req.body, 'get', (err, fields) => {
+            if(err){
+                next({status: false, note: err});
+            }else{
+                let mydb = new db();
+                mydb.getMany({
+                    collection: this.entity,
+                    query: fields
+                }, (err, result) => {
+                    if(err){
+                        next({status: false, note: err});
+                    }else{
+                        next({status: true, data: result});
+                    }
+                });
+            }
+        });
+        
+    }
+
+    post(req, res, next){
+        this.validateFields(req.body, 'post', (err, fields) => {
+            if(err){
+                next({status: false, note: err});
             }else{
                 let mydb = new db();
                 mydb.insertOne({
@@ -81,40 +126,12 @@ module.exports = class Model {
                 });
             }
         });
-    };
+    }
 
-    getOne = (req, res, next) => {
-        let mydb = new db();
-        mydb.getOne({
-            collection: this.entity,
-            query: {_id: ObjectId(req.params.id)}
-        }, (err, result) => {
-            if(err){
-                next(err);
-            }else{
-                res.status(200).send(result);
-            }
-        });
-    };
-
-    getOneWithCondition = (req, res, next) => {
-        let mydb = new db();
-        mydb.getOne({
-            collection: this.entity,
-            query: req.params.query
-        }, (err, result) => {
-            if(err){
-                next(err);
-            }else{
-                res.status(200).send(result);
-            }
-        });
-    };
-
-    put = (req, res) => {
+    put(req, res){
         this.validateFields(req.body, (err, fields) => {
             if(err){
-                res.status(400).send(err);
+                next({status: false, note: err});
             }else{
                 let mydb = new db();
                 mydb.updateOne({
@@ -130,19 +147,19 @@ module.exports = class Model {
                 });
             }
         });
-    };
+    }
 
-    delete = (req, res) => {
+    delete(req, res){
         let mydb = new db();
         mydb.deleteOne({
             collection: this.entity,
             query: {_id: ObjectId(req.params.id)}
         }, (err, result) => {
             if(err){
-                next(err);
+                next({status: false, note: err});
             }else{
                 res.status(200).send(result);
             }
         });
-    };
+    }
 };
