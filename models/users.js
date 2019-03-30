@@ -21,6 +21,7 @@ module.exports = {
             required: true,
             min_length: 3,
             max_length: 100
-        }
+        },
+        roles: {}
     }
 };

@@ -7,7 +7,7 @@ const userModel = require('../models/users');;
 const jsonParser = bodyParser.json();
 let user = new model(userModel);
 
-router.route('/').get(user.getMany).post(jsonParser, user.post);
-router.route('/:id').get(user.getOneWithId).put(user.put).delete(user.delete);
+router.route('/').get(user.getMany.bind(user)).post(jsonParser, user.post.bind(user));
+router.route('/:id').get(user.getOneWithId.bind(user)).put(user.put.bind(user)).delete(user.delete.bind(user));
 
 module.exports = router;
