@@ -9,7 +9,7 @@ module.exports = class DB {
             if (err){
                 next(err);
             }else{
-                var dbo = db.db(database);
+                let dbo = db.db(database);
                 dbo.collection(props.collection).insertOne(props.data, (err, res) => {
                     if (err){
                         next(err);
@@ -27,8 +27,14 @@ module.exports = class DB {
             if (err){
                 next(err);
             }else{
-                var dbo = db.db(database);
-                dbo.collection(props.collection).findOne(props.query, function(err, result) {
+                let dbo = db.db(database);
+                let fields = {};
+                if(props.params && props.params.fields){
+                    for(let i = 0; i < props.params.fields.length; i++){
+                        fields[props.params.fields[i]] = 1;
+                    }
+                }
+                dbo.collection(props.collection).findOne(props.query, fields, function(err, result) {
                     if (err){
                         next(err);
                     }else{
@@ -45,11 +51,19 @@ module.exports = class DB {
             if (err){
                 next(err);
             }else{
-                var dbo = db.db(database);
+                let dbo = db.db(database);
                 if(!props.limit){
                     props.limit = 0;
                 }
-                dbo.collection(props.collection).find(props.query).sort(props.sort).limit(props.limit).toArray((err, result) => {
+                let fields = {};
+                if(props.params && props.params.fields){
+                    for(let i = 0; i < props.params.fields.length; i++){
+                        fields[props.params.fields[i]] = 1;
+                    }
+                }
+                console.log(fields);
+                dbo.collection(props.collection).find(props.query, fields).sort(props.sort).limit(props.limit).toArray((err, result) => {
+                    console.log(result);
                     if(err){
                         next(err);
                     }else{
@@ -66,8 +80,8 @@ module.exports = class DB {
             if(err){
                 next(err);
             }else{
-                var dbo = db.db(database);
-                var values = {$set: props.values};
+                let dbo = db.db(database);
+                let values = {$set: props.values};
                 dbo.collection(props.collection).updateOne(props.query, values, (err, res) => {
                     if(err){
                         next(err);
@@ -85,7 +99,7 @@ module.exports = class DB {
             if(err){
                 next(err);
             }else{
-                var dbo = db.db(database);
+                let dbo = db.db(database);
                 dbo.collection(props.collection).deleteOne(props.query, (err, obj) => {
                     if(err){
                         next(err);
@@ -97,4 +111,22 @@ module.exports = class DB {
             }
         });
     }
-}
+
+    deleteMany(props, next){
+        MongoClient.connect(url, {useNewUrlParser: true}, function(err, db) {
+            if(err){
+                next(err);
+            }else{
+                let dbo = db.db(database);
+                dbo.collection(props.collection).deleteMany(props.query, (err, obj) => {
+                    if(err){
+                        next(err);
+                    }else{
+                        next(null, {status: 'true'});
+                        db.close();
+                    }
+                });
+            }
+        });
+    }
+};

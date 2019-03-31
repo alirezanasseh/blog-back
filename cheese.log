@@ -836,3 +836,5 @@
      token: null },
   _body: true,
   length: undefined }
+[2019-03-31T09:54:33.780] [ERROR] cheese - Cheese is too ripe!
+[2019-03-31T09:54:33.781] [FATAL] cheese - Cheese was breeding ground for listeria.

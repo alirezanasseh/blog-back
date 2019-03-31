@@ -53,11 +53,12 @@ module.exports = class Model {
         }
     }
 
-    getOneWithId(req, res, next){
+    getOneById(req, res, next){
         let mydb = new db();
         mydb.getOne({
             collection: this.entity,
-            query: {_id: ObjectId(req.body.id)}
+            query: {_id: ObjectId(req.body.id)},
+            params: req.params
         }, (err, result) => {
             if(err){
                 next({status: false, note: err});
@@ -67,7 +68,7 @@ module.exports = class Model {
         });
     }
 
-    getOneWithCondition(req, res, next){
+    getOneByCondition(req, res, next){
         this.validateFields(req.body, 'get', (err, fields) => {
             if(err){
                 next({status: false, note: err});
@@ -75,7 +76,8 @@ module.exports = class Model {
                 let mydb = new db();
                 mydb.getOne({
                     collection: this.entity,
-                    query: fields
+                    query: fields,
+                    params: req.params
                 }, (err, result) => {
                     if(err){
                         next({status: false, note: err});
@@ -95,7 +97,8 @@ module.exports = class Model {
                 let mydb = new db();
                 mydb.getMany({
                     collection: this.entity,
-                    query: fields
+                    query: fields,
+                    params: req.params
                 }, (err, result) => {
                     if(err){
                         next({status: false, note: err});
@@ -149,7 +152,7 @@ module.exports = class Model {
         });
     }
 
-    delete(req, res){
+    deleteById(req, res){
         let mydb = new db();
         mydb.deleteOne({
             collection: this.entity,
@@ -159,6 +162,26 @@ module.exports = class Model {
                 next({status: false, note: err});
             }else{
                 res.status(200).send(result);
+            }
+        });
+    }
+
+    deleteByCondition(req, res){
+        this.validateFields(req.body, 'get', (err, fields) => {
+            if (err) {
+                next({status: false, note: err});
+            } else {
+                let mydb = new db();
+                mydb.deleteMany({
+                    collection: this.entity,
+                    query: fields
+                }, (err, result) => {
+                    if(err){
+                        next({status: false, note: err});
+                    }else{
+                        res.status(200).send(result);
+                    }
+                });
             }
         });
     }
