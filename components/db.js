@@ -61,9 +61,7 @@ module.exports = class DB {
                         fields[props.params.fields[i]] = 1;
                     }
                 }
-                console.log(fields);
                 dbo.collection(props.collection).find(props.query, fields).sort(props.sort).limit(props.limit).toArray((err, result) => {
-                    console.log(result);
                     if(err){
                         next(err);
                     }else{

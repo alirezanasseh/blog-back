@@ -63,7 +63,7 @@ module.exports = class Model {
             if(err){
                 next({status: false, note: err});
             }else{
-                res.status(200).send(result);
+                next({status: true, data: {item: result}});
             }
         });
     }
@@ -82,7 +82,7 @@ module.exports = class Model {
                     if(err){
                         next({status: false, note: err});
                     }else{
-                        next({status: true, data: result});
+                        next({status: true, data: {item: result}});
                     }
                 });
             }
@@ -103,7 +103,7 @@ module.exports = class Model {
                     if(err){
                         next({status: false, note: err});
                     }else{
-                        next({status: true, data: result});
+                        next({status: true, data: {list: result}});
                     }
                 });
             }

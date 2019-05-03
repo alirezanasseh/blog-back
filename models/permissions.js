@@ -6,7 +6,7 @@ module.exports = {
             required: true,
             max_length: 100
         },
-        model: {
+        module: {
             required: true,
             max_length: 100
         },

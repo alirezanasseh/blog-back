@@ -18,13 +18,20 @@ router.route('/').post(jsonParser, (req, res) => {
         }else{
             permission.getMany({
                 body: {
-                    role: {$in: result.data.roles}, 
+                    role: {$in: result.data.item.roles}, 
                     "permissions.get": {$exists: true},
                 },
                 params: {
-                    fields: ["model"]
+                    fields: ["module"]
                 }
-            }, res, (result) => {
+            }, res, (permission_result) => {
+                console.log(permission_result);
+                let models = [];
+                for(let i = 0; i < permission_result.data.list.length; i++){
+                    let data = permission_result.data.list[i];
+                    models.push({module: data.module, permissions: ["get"]});
+                }
+                result.data.item.allowed_urls = models;
                 res.status(200).send(result);
             });
         }
