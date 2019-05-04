@@ -90,25 +90,48 @@ module.exports = class Model {
     }
 
     getMany(req, res, next){
-        this.validateFields(req.body, 'get', (err, fields) => {
-            if(err){
-                next({status: false, note: err});
-            }else{
-                let mydb = new db();
-                mydb.getMany({
-                    collection: this.entity,
-                    query: fields,
-                    params: req.params
-                }, (err, result) => {
-                    if(err){
-                        next({status: false, note: err});
-                    }else{
-                        next({status: true, data: {list: result}});
-                    }
-                });
+        console.log("req.body :", req.body);
+        if(req.body){
+            console.log('1');
+            this.validateFields(req.body, 'get', (err, fields) => {
+                if(err){
+                    next({status: false, note: err});
+                }else{
+                    let mydb = new db();
+                    mydb.getMany({
+                        collection: this.entity,
+                        query: fields,
+                        params: req.params
+                    }, (err, result) => {
+                        if(err){
+                            next({status: false, note: err});
+                        }else{
+                            next({status: true, data: {list: result}});
+                        }
+                    });
+                }
+            });
+        }else{
+            console.log('2');
+            let mydb = new db();
+            let getObj = {
+                collection: this.entity,
+            };
+            console.log("req.params :", req.params);
+            if(req.params){
+                getObj.params = req.params;
             }
-        });
-        
+            console.log("getObj :", getObj);
+            mydb.getMany(getObj, (err, result) => {
+                if(err){
+                    console.log("err :", err);
+                    next({status: false, note: err});
+                }else{
+                    console.log("result :", result);
+                    next({status: true, data: {list: result}});
+                }
+            });
+        }
     }
 
     post(req, res, next){

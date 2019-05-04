@@ -25,7 +25,6 @@ router.route('/').post(jsonParser, (req, res) => {
                     fields: ["module"]
                 }
             }, res, (permission_result) => {
-                console.log(permission_result);
                 let models = [];
                 for(let i = 0; i < permission_result.data.list.length; i++){
                     let data = permission_result.data.list[i];
