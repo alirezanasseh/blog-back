@@ -1,21 +1,28 @@
 {
-  "name": "expressfw",
+  "name": "blog-back",
   "version": "1.0.0",
-  "description": "NodeJs ExpressJs Framework",
+  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Alireza",
-  "license": "ISC",
-  "dependencies": {
-    "body-parser": "^1.18.3",
-    "cors": "^2.8.5",
-    "express": "^4.16.4",
-    "helmet": "^3.15.0",
-    "log4js": "^4.1.0",
-    "mongodb": "^3.1.13",
-    "nodemon": "^1.18.10"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alirezanasseh/blog-back.git"
   },
-  "devDependencies": {}
+  "author": "Alireza Nasseh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alirezanasseh/blog-back/issues"
+  },
+  "homepage": "https://github.com/alirezanasseh/blog-back#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "helmet": "^4.1.1",
+    "log4js": "^6.3.0",
+    "mongodb": "^3.6.2",
+    "nodemon": "^2.0.6"
+  }
 }
